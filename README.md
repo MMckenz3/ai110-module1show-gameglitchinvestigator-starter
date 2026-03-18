@@ -31,7 +31,7 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📸 Demo
 
-- ![Alt text](/Users/macfiller/ai101/hw/ai110-module1show-gameglitchinvestigator-starter/fixed_game.png/to/img.jpg?raw=true "Optional Title") [Insert a screenshot of your fixed, winning game here]
+- ![Alt text](fixed_game.png) [Insert a screenshot of your fixed, winning game here]
 
 ## 🚀 Stretch Features
 
