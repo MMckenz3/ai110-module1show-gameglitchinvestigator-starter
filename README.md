@@ -25,14 +25,31 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- [ ] The purpose of this game is to prompt the user to guess a secret number, 
+which they can attempt to find multiple times in each game. Depending on the
+difficulty, the user will have more or less guesses. If they choose to have
+hints on, they can see if they need to guess higher or lower; otherwise, they
+will have to rely on pure guesswork to find the secret number within the amount
+of attempts alotted.
+
+- [ ] The following bugs were found and addressed: 
+   - The user could make out-of-bound guesses
+   - Hints were inverted (Too High -> Go HIGHER, Too Low -> Go LOWER)
+   - Could not start a new game after game 1
+   - Empty submissions cost an attempt
+   - Functions imported to test_game_logic.py were in app.py instead of logic_utils.py
+
+- [ ] The following fixes were applied:
+   - Added an if-statement to check whether guesses were in-bounds or not
+   - Changed the strings for the hints for too high and too low guesses to give
+   proper guidance
+   - Added a session_state.status called "playing" to evaluate whether the user
+   is playing a new game or not; in turn, if status is "won", a new game can 
+   start, rather than the user being trapped in one game the whole time
+   - Added a condition in the parse_guess function to account for empty strings
+   - Moved relevant functions from app.py to logic_utils.py so
+   test_game_logic.py had access to the functions it was importing from logic_utils.py
 
 ## 📸 Demo
 
-- ![Alt text](fixed_game.png) [Insert a screenshot of your fixed, winning game here]
-
-## 🚀 Stretch Features
-
-- [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+- ![Alt text](fixed_game.png) 
