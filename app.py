@@ -10,8 +10,9 @@ def get_range_for_difficulty(difficulty: str):
         return 1, 50
     return 1, 100
 
-
-def parse_guess(raw: str):
+# FIX: Added if value<low/value>high line, which account for the values being 
+# in the range 1<=x<=100
+def parse_guess(raw: str, low: int, high: int):
     if raw is None:
         return False, None, "Enter a guess."
 
@@ -26,6 +27,9 @@ def parse_guess(raw: str):
     except Exception:
         return False, None, "That is not a number."
 
+    if value < low or value > high:
+        return False, None, f"Please enter a number between {low} and {high}."
+
     return True, value, None
 
 
@@ -33,11 +37,13 @@ def check_guess(guess, secret):
     if guess == secret:
         return "Win", "🎉 Correct!"
 
+# FIX: Changed the strings for Too High and Too Low to direct the player in
+# the right direction (i.e. too high? Go lower, not higher and vice-versa)
     try:
         if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
+            return "Too High", "📉 Go LOWER!"
         else:
-            return "Too Low", "📉 Go LOWER!"
+            return "Too Low", "📈 Go HIGHER!"
     except TypeError:
         g = str(guess)
         if g == secret:
@@ -77,9 +83,10 @@ difficulty = st.sidebar.selectbox(
     index=1,
 )
 
+# FIX: Changed 'Normal' # from 8 to 7 to match the flow of the game
 attempt_limit_map = {
     "Easy": 6,
-    "Normal": 8,
+    "Normal": 7,
     "Hard": 5,
 }
 attempt_limit = attempt_limit_map[difficulty]
@@ -93,7 +100,7 @@ if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
 if "attempts" not in st.session_state:
-    st.session_state.attempts = 1
+    st.session_state.attempts = 0
 
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -105,11 +112,6 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 st.subheader("Make a guess")
-
-st.info(
-    f"Guess a number between 1 and 100. "
-    f"Attempts left: {attempt_limit - st.session_state.attempts}"
-)
 
 with st.expander("Developer Debug Info"):
     st.write("Secret:", st.session_state.secret)
@@ -131,9 +133,13 @@ with col2:
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
+# FIX: Sets the game staus to "playing" in line 138 + added line 142, distinguish
+# new games from one another. This fixes a bug where the I was not able to play a
+# new game after ending the first one
 if new_game:
     st.session_state.attempts = 0
     st.session_state.secret = random.randint(1, 100)
+    st.session_state.status = "playing"
     st.success("New game started.")
     st.rerun()
 
@@ -144,15 +150,16 @@ if st.session_state.status != "playing":
         st.error("Game over. Start a new game to try again.")
     st.stop()
 
+# FIX: Moved line 161 from 156 to 161 so the game no longer takes attempts if 
+# you do not input a guess into the box when clicking the submit icon. This 
+# means you first validate if a guess is parsed, then +1 the attempts.
 if submit:
-    st.session_state.attempts += 1
-
-    ok, guess_int, err = parse_guess(raw_guess)
+    ok, guess_int, err = parse_guess(raw_guess, low, high)
 
     if not ok:
-        st.session_state.history.append(raw_guess)
         st.error(err)
     else:
+        st.session_state.attempts += 1
         st.session_state.history.append(guess_int)
 
         if st.session_state.attempts % 2 == 0:
@@ -186,6 +193,13 @@ if submit:
                     f"The secret was {st.session_state.secret}. "
                     f"Score: {st.session_state.score}"
                 )
+
+# FIX: Moved this line to after the 'if submit:' line so the attempts do not
+# update before the guess is made
+st.info(
+    f"Guess a number between 1 and 100. "
+    f"Attempts left: {attempt_limit - st.session_state.attempts}"
+)
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")
